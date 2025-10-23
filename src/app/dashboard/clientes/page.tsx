@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,9 +29,10 @@ import { useToast } from '@/hooks/use-toast';
 import { LocationPicker } from '@/components/ui/location-picker';
 
 // Helper para extraer mensajes de error
-const getErrorMessage = (err: any): string => {
-    if (err.response?.data?.errors) {
-        const errors = err.response.data.errors;
+const getErrorMessage = (err: unknown): string => {
+    const error = err as { response?: { data?: { errors?: Record<string, string[]>; message?: string; title?: string } }; message?: string };
+    if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
         const messages: string[] = [];
         Object.keys(errors).forEach(field => {
             const fieldErrors = errors[field];
@@ -41,7 +42,7 @@ const getErrorMessage = (err: any): string => {
         });
         return messages.join('. ');
     }
-    return err.response?.data?.message || err.response?.data?.title || err.message || 'Error en la operación';
+    return error.response?.data?.message || error.response?.data?.title || error.message || 'Error en la operación';
 };
 
 export default function ClientesPage() {
@@ -86,7 +87,7 @@ export default function ClientesPage() {
             setLoadError('');
             const data = await clientesApi.getAll();
             setClientes(data);
-        } catch (err: any) {
+        } catch (err) {
             setLoadError(getErrorMessage(err));
             console.error('Error loading clientes:', err);
         } finally {
@@ -192,7 +193,7 @@ export default function ClientesPage() {
             setDialogOpen(false);
             clearForm();
             await loadClientes();
-        } catch (err: any) {
+        } catch (err) {
             setFormError(getErrorMessage(err));
         } finally {
             setIsSaving(false);
