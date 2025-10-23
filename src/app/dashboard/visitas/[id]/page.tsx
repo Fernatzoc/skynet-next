@@ -26,9 +26,10 @@ import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-const getErrorMessage = (err: any): string => {
-    if (err.response?.data?.errors) {
-        const errors = err.response.data.errors;
+const getErrorMessage = (err: unknown): string => {
+    const error = err as { response?: { data?: { errors?: Record<string, string[]>; message?: string; title?: string } }; message?: string };
+    if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
         const messages: string[] = [];
         Object.keys(errors).forEach(field => {
             const fieldErrors = errors[field];
@@ -38,7 +39,7 @@ const getErrorMessage = (err: any): string => {
         });
         return messages.join('. ');
     }
-    return err.response?.data?.message || err.response?.data?.title || err.message || 'Error al cargar los detalles';
+    return error.response?.data?.message || error.response?.data?.title || error.message || 'Error al cargar los detalles';
 };
 
 const getEstadoBadgeColor = (idEstado: number) => {
@@ -97,7 +98,7 @@ export default function VisitaDetallePage() {
             setLoadError('');
             const data = await visitasApi.getDetalle(visitaId);
             setDetalle(data);
-        } catch (err: any) {
+        } catch (err) {
             const errorMsg = getErrorMessage(err);
             setLoadError(errorMsg);
             toast({

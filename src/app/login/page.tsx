@@ -46,8 +46,9 @@ export default function LoginPage() {
                     variant: "success",
                 });
             }
-        } catch (err: any) {
-            const errorMessage = err.message || 'Error inesperado al iniciar sesión';
+        } catch (err) {
+            const error = err as { message?: string };
+            const errorMessage = error.message || 'Error inesperado al iniciar sesión';
             setError(errorMessage);
             toast({
                 title: "❌ Error",

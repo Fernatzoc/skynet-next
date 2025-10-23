@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { authService, tokenService, JWTPayload } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
-import { UserRole, hasPermission, RolePermissions } from '@/lib/types/roles';
+import { hasPermission, RolePermissions } from '@/lib/types/roles';
 import { rolesApi } from '@/lib/api/roles';
 
 export function useAuth() {
@@ -12,11 +12,7 @@ export function useAuth() {
     const [roleLoading, setRoleLoading] = useState(false);
     const router = useRouter();
 
-    useEffect(() => {
-        checkAuth();
-    }, []);
-
-    const checkAuth = async () => {
+    const checkAuth = useCallback(async () => {
         const currentUser = authService.getCurrentUser();
         setUser(currentUser);
 
@@ -27,7 +23,11 @@ export function useAuth() {
         }
 
         setLoading(false);
-    };
+    }, []);
+
+    useEffect(() => {
+        checkAuth();
+    }, [checkAuth]);
 
     const fetchUserRole = async () => {
         try {
@@ -67,10 +67,11 @@ export function useAuth() {
 
             router.push('/dashboard');
             return { success: true };
-        } catch (error: any) {
+        } catch (error) {
+            const err = error as { message?: string };
             return {
                 success: false,
-                error: error.message || 'Error al iniciar sesión'
+                error: err.message || 'Error al iniciar sesión'
             };
         }
     };

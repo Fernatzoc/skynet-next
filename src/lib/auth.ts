@@ -63,7 +63,7 @@ export const tokenService = {
             try {
                 const decoded = JSON.parse(atob(tokenToUse));
                 return decoded as JWTPayload;
-            } catch (demoError) {
+            } catch {
                 console.error('Error decoding token:', error);
                 return null;
             }
@@ -107,7 +107,7 @@ export const authService = {
                 try {
                     const error = await response.json();
                     errorMessage = error.message || error.error || errorMessage;
-                } catch (e) {
+                } catch {
                     // No se pudo parsear el error
                 }
                 throw new Error(errorMessage);
@@ -124,7 +124,7 @@ export const authService = {
             tokenService.setToken(data.token);
 
             return data;
-        } catch (error: any) {
+        } catch (error) {
             console.error('Login error:', error);
             throw error;
         }
@@ -163,10 +163,10 @@ export const authService = {
 
         // Mapear campos de Microsoft Claims a nuestro formato
         if (decoded) {
-            const decodedAny = decoded as any;
+            const decodedAny = decoded as unknown as Record<string, unknown>;
             const roleClaim = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
             return {
-                id: decoded.id || decodedAny.sub || decodedAny.nameid || '',
+                id: decoded.id || (decodedAny.sub as string) || (decodedAny.nameid as string) || '',
                 email: decoded.email || '',
                 role: decoded.role || decodedAny[roleClaim] as UserRole | undefined,
                 exp: decoded.exp,

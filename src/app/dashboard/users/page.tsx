@@ -99,8 +99,9 @@ export default function UsersPage() {
             setLoadError('');
             const data = await usersApi.getAll();
             setUsers(data);
-        } catch (err: any) {
-            setLoadError(err.response?.data?.message || err.message || 'Error al cargar usuarios');
+        } catch (err) {
+            const error = err as { response?: { data?: { message?: string } }; message?: string };
+            setLoadError(error.response?.data?.message || error.message || 'Error al cargar usuarios');
             console.error('Error loading users:', err);
         } finally {
             setIsLoading(false);
@@ -120,11 +121,12 @@ export default function UsersPage() {
     };
 
     // Helper para extraer mensajes de error de validación del backend
-    const getErrorMessage = (err: any): string => {
+    const getErrorMessage = (err: unknown): string => {
+        const error = err as { response?: { data?: { errors?: Record<string, string[]>; message?: string; title?: string } }; message?: string };
         // Formato de error de validación de ASP.NET Core:
         // { type, title, status, errors: { Campo: ["mensaje1", "mensaje2"] } }
-        if (err.response?.data?.errors) {
-            const errors = err.response.data.errors;
+        if (error.response?.data?.errors) {
+            const errors = error.response.data.errors;
             const messages: string[] = [];
 
             Object.keys(errors).forEach(field => {
@@ -138,9 +140,9 @@ export default function UsersPage() {
         }
 
         // Mensaje de error simple
-        return err.response?.data?.message ||
-            err.response?.data?.title ||
-            err.message ||
+        return error.response?.data?.message ||
+            error.response?.data?.title ||
+            error.message ||
             'Error en la operación';
     };
 
@@ -191,7 +193,7 @@ export default function UsersPage() {
             });
             // Recargar la lista de usuarios
             await loadUsers();
-        } catch (err: any) {
+        } catch (err) {
             setCreateError(getErrorMessage(err));
         } finally {
             setIsCreating(false);
@@ -222,7 +224,7 @@ export default function UsersPage() {
             });
             // Recargar la lista de usuarios
             await loadUsers();
-        } catch (err: any) {
+        } catch (err) {
             setRoleError(getErrorMessage(err));
         } finally {
             setIsAssigningRole(false);
@@ -261,7 +263,7 @@ export default function UsersPage() {
                 description: "La contraseña ha sido restablecida exitosamente",
                 variant: "success",
             });
-        } catch (err: any) {
+        } catch (err) {
             setResetPasswordError(getErrorMessage(err));
         } finally {
             setIsResettingPassword(false);
@@ -290,7 +292,7 @@ export default function UsersPage() {
             });
             // Recargar la lista de usuarios
             await loadUsers();
-        } catch (err: any) {
+        } catch (err) {
             setStatusError(getErrorMessage(err));
         } finally {
             setIsUpdatingStatus(false);
@@ -328,7 +330,7 @@ export default function UsersPage() {
             });
             // Recargar la lista de usuarios
             await loadUsers();
-        } catch (err: any) {
+        } catch (err) {
             setProfileError(getErrorMessage(err));
         } finally {
             setIsUpdatingProfile(false);
@@ -520,7 +522,7 @@ export default function UsersPage() {
                             ) : users.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
                                     <p>No hay usuarios registrados</p>
-                                    <p className="text-sm">Crea el primer usuario usando el botón "Nuevo Usuario"</p>
+                                    <p className="text-sm">Crea el primer usuario usando el botón &quot;Nuevo Usuario&quot;</p>
                                 </div>
                             ) : (
                                 <div className="space-y-4">

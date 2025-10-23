@@ -48,11 +48,11 @@ export function middleware(request: NextRequest) {
             try {
                 // Intentar como JWT real
                 decoded = jwtDecode<JWTPayload>(token);
-            } catch (jwtError) {
+            } catch {
                 // Si falla, intentar como token demo (base64)
                 try {
                     decoded = JSON.parse(decodeBase64(token));
-                } catch (base64Error) {
+                } catch {
                     throw new Error('Invalid token format');
                 }
             }
@@ -90,11 +90,11 @@ export function middleware(request: NextRequest) {
             try {
                 // Intentar como JWT real
                 decoded = jwtDecode<JWTPayload>(token);
-            } catch (jwtError) {
+            } catch {
                 // Si falla, intentar como token demo (base64)
                 try {
                     decoded = JSON.parse(decodeBase64(token));
-                } catch (base64Error) {
+                } catch {
                     // Token inválido, permitir acceso a la ruta pública
                     return NextResponse.next();
                 }
@@ -106,7 +106,7 @@ export function middleware(request: NextRequest) {
             if (decoded.exp > currentTime) {
                 return NextResponse.redirect(new URL('/dashboard', request.url));
             }
-        } catch (error) {
+        } catch {
             // Token inválido, permitir acceso a la ruta pública
         }
     }

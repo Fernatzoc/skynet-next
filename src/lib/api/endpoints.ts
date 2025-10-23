@@ -198,7 +198,7 @@ export const usersApi = {
 
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
     // Construir el payload, solo incluir campos opcionales si tienen valor
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       email: data.email,
       password: data.password,
       firstName: data.firstName,

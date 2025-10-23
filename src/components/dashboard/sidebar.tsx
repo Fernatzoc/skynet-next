@@ -26,7 +26,7 @@ interface SidebarProps {
 interface MenuItem {
     title: string;
     href: string;
-    icon: any;
+    icon: React.ComponentType<{ className?: string }>;
     permission?: keyof RolePermissions;
 }
 

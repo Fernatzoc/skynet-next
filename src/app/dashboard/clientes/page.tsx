@@ -220,7 +220,7 @@ export default function ClientesPage() {
             setDeleteDialogOpen(false);
             setClienteToDelete(null);
             await loadClientes();
-        } catch (err: any) {
+        } catch (err) {
             toast({
                 title: "❌ Error",
                 description: getErrorMessage(err),

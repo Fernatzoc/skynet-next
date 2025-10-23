@@ -68,9 +68,10 @@ import { format, parseISO, isToday, isThisWeek, isThisMonth } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 // Helper para extraer mensajes de error
-const getErrorMessage = (err: any): string => {
-    if (err.response?.data?.errors) {
-        const errors = err.response.data.errors;
+const getErrorMessage = (err: unknown): string => {
+    const error = err as { response?: { data?: { errors?: Record<string, string[]>; message?: string; title?: string } }; message?: string };
+    if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
         const messages: string[] = [];
         Object.keys(errors).forEach(field => {
             const fieldErrors = errors[field];
@@ -80,7 +81,7 @@ const getErrorMessage = (err: any): string => {
         });
         return messages.join('. ');
     }
-    return err.response?.data?.message || err.response?.data?.title || err.message || 'Error en la operación';
+    return error.response?.data?.message || error.response?.data?.title || error.message || 'Error en la operación';
 };
 
 // Helper para obtener el color del badge según el estado
@@ -238,7 +239,7 @@ export default function VisitasPage() {
                 const data = await visitasApi.getAll();
                 setVisitas(data);
             }
-        } catch (err: any) {
+        } catch (err) {
             setLoadError(getErrorMessage(err));
             console.error('Error loading visitas:', err);
         } finally {
@@ -303,7 +304,7 @@ export default function VisitasPage() {
 
             setTecnicos(tecnicosData);
             setSupervisores(supervisoresData);
-        } catch (err: any) {
+        } catch (err) {
             console.error('Error loading catálogos:', err);
             toast({
                 title: "⚠️ Advertencia",
@@ -403,7 +404,7 @@ export default function VisitasPage() {
             setDialogOpen(false);
             clearForm();
             await loadVisitas();
-        } catch (err: any) {
+        } catch (err) {
             setFormError(getErrorMessage(err));
         } finally {
             setIsSaving(false);
@@ -430,7 +431,7 @@ export default function VisitasPage() {
             setDeleteDialogOpen(false);
             setVisitaToDelete(null);
             await loadVisitas();
-        } catch (err: any) {
+        } catch (err) {
             toast({
                 title: "❌ Error",
                 description: getErrorMessage(err),
@@ -463,7 +464,7 @@ export default function VisitasPage() {
             setVisitaToChangeEstado(null);
             setNuevoEstado('');
             await loadVisitas();
-        } catch (err: any) {
+        } catch (err) {
             toast({
                 title: "❌ Error",
                 description: getErrorMessage(err),
@@ -491,7 +492,7 @@ export default function VisitasPage() {
                 variant: "success",
             });
             await loadVisitas();
-        } catch (err: any) {
+        } catch (err) {
             toast({
                 title: "❌ Error",
                 description: getErrorMessage(err),
@@ -576,7 +577,7 @@ export default function VisitasPage() {
             setFechaHoraFinReal('');
             setObservaciones('');
             await loadVisitas();
-        } catch (err: any) {
+        } catch (err) {
             console.error('❌ Error al registrar visita:', err);
             toast({
                 title: "❌ Error",
