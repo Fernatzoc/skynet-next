@@ -2,21 +2,93 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### 1. Instalar dependencias
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+```
+
+### 2. Configurar variables de entorno
+
+Crea un archivo `.env.local` en la raíz del proyecto:
+
+```bash
+cp .env.example .env.local
+```
+
+Edita `.env.local` y agrega las API keys necesarias:
+
+```env
+# Google Maps (requerido para módulo de clientes)
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=tu-google-maps-api-key-aqui
+
+# Resend (requerido para envío de emails)
+RESEND_API_KEY=re_tu-resend-api-key-aqui
+```
+
+**📍 Google Maps:** El módulo de clientes requiere Google Maps API para seleccionar ubicaciones.
+Ver [GOOGLE_MAPS_SETUP.md](./GOOGLE_MAPS_SETUP.md) para instrucciones detalladas.
+
+**📧 Resend:** El sistema envía emails automáticos a clientes cuando se completan visitas.
+Ver [RESEND_EMAIL_SETUP.md](./RESEND_EMAIL_SETUP.md) para configuración completa.
+
+### 3. Ejecutar el servidor de desarrollo
+
+```bash
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Características Principales
+
+- 🔐 **Sistema de autenticación** con roles (Técnico, Supervisor, Administrador)
+- 👥 **Gestión de usuarios** completa con asignación de roles
+-  **Módulo de clientes** con selector de ubicación en mapa (Google Maps)
+- 📅 **Módulo de visitas** con gestión completa de agendación y estados
+- 📧 **Notificaciones por email** automáticas al completar visitas (Resend)
+- 🗺️ **Vista de detalles** con Google Maps integrado
+- 🎨 **UI moderna** con shadcn/ui y Tailwind CSS 4
+- 🔔 **Notificaciones toast** para feedback al usuario
+- 📱 **Responsive design** optimizado para todos los dispositivos
+
+## Estructura del Proyecto
+
+```
+src/
+├── app/                    # Páginas y rutas de Next.js
+│   ├── dashboard/         # Área protegida del dashboard
+│   │   ├── clientes/     # Módulo de gestión de clientes
+│   │   ├── visitas/      # Módulo de gestión de visitas
+│   │   ├── users/        # Módulo de gestión de usuarios
+│   │   └── profile/      # Perfil del usuario
+│   └── login/            # Página de login
+├── components/            # Componentes reutilizables
+│   ├── ui/               # Componentes de UI (shadcn/ui)
+│   └── dashboard/        # Componentes específicos del dashboard
+├── lib/                   # Utilidades y configuración
+│   ├── api/              # Cliente API y endpoints
+│   ├── hooks/            # Custom hooks de React
+│   └── types/            # Tipos TypeScript
+└── public/               # Archivos estáticos
+```
+
+## Documentación
+
+- [Configuración Google Maps](./GOOGLE_MAPS_SETUP.md) - Guía completa para configurar Google Maps API
+- [API de Usuarios](./USUARIOS_API.md) - Documentación de endpoints de usuarios
+- [API de Visitas](./VISITAS_API.md) - Documentación completa del módulo de visitas
+
+## Tecnologías Utilizadas
+
+- **Next.js 15.5** - Framework React con App Router
+- **React 19** - Librería de UI
+- **TypeScript** - Tipado estático
+- **Tailwind CSS 4** - Estilos utility-first
+- **shadcn/ui** - Componentes de UI accesibles
+- **Google Maps API** - Mapas y geolocalización
+- **date-fns** - Manejo de fechas y formato i18n
+- **Axios** - Cliente HTTP para API
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
