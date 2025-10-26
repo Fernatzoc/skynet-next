@@ -23,10 +23,11 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Search, UserPlus, MoreVertical, Phone, MapPin, Loader2, Edit, Trash2 } from 'lucide-react';
+import { Search, UserPlus, MoreVertical, Phone, MapPin, Loader2, Edit, Trash2, Download } from 'lucide-react';
 import { clientesApi, Cliente, CreateClienteRequest } from '@/lib/api/endpoints';
 import { useToast } from '@/hooks/use-toast';
 import { LocationPicker } from '@/components/ui/location-picker';
+import { generateClientesPDF } from '@/lib/reports';
 
 // Helper para extraer mensajes de error
 const getErrorMessage = (err: unknown): string => {
@@ -260,10 +261,26 @@ export default function ClientesPage() {
                         </p>
                     </div>
 
-                    <Button onClick={openCreateDialog}>
-                        <UserPlus className="mr-2 h-4 w-4" />
-                        Nuevo Cliente
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                generateClientesPDF(filteredClientes);
+                                toast({
+                                    title: 'PDF Generado',
+                                    description: 'El reporte de clientes se ha descargado exitosamente',
+                                });
+                            }}
+                        >
+                            <Download className="mr-2 h-4 w-4" />
+                            Exportar PDF
+                        </Button>
+
+                        <Button onClick={openCreateDialog}>
+                            <UserPlus className="mr-2 h-4 w-4" />
+                            Nuevo Cliente
+                        </Button>
+                    </div>
                 </div>
 
                 <Card>

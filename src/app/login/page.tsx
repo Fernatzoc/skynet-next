@@ -35,13 +35,13 @@ export default function LoginPage() {
             if (!result.success) {
                 setError(result.error || 'Error al iniciar sesión');
                 toast({
-                    title: "❌ Error de autenticación",
+                    title: "Error de autenticación",
                     description: result.error || 'Error al iniciar sesión',
                     variant: "destructive",
                 });
             } else {
                 toast({
-                    title: "✅ Inicio de sesión exitoso",
+                    title: "Inicio de sesión exitoso",
                     description: "Bienvenido de vuelta",
                     variant: "success",
                 });
@@ -51,7 +51,7 @@ export default function LoginPage() {
             const errorMessage = error.message || 'Error inesperado al iniciar sesión';
             setError(errorMessage);
             toast({
-                title: "❌ Error",
+                title: "Error",
                 description: errorMessage,
                 variant: "destructive",
             });
@@ -60,7 +60,7 @@ export default function LoginPage() {
         }
     };
 
-    // Función para login rápido con credenciales demo
+
     const quickLogin = (demoEmail: string, demoPassword: string) => {
         setEmail(demoEmail);
         setPassword(demoPassword);
@@ -77,12 +77,11 @@ export default function LoginPage() {
                     </div>
                     <CardTitle className="text-2xl font-bold">Bienvenido a SkyNet</CardTitle>
                     <CardDescription>
-                        Ingresa tus credenciales para acceder al dashboard
+                        Ingresa tus credenciales
                     </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4">
-                        {/* Mostrar banner de modo demo */}
                         {isDemoMode && (
                             <div className="p-4 text-sm bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-md space-y-2">
                                 <div className="font-semibold text-blue-700 dark:text-blue-400 flex items-center">
@@ -161,18 +160,9 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-sm">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input type="checkbox" className="rounded border-gray-300" />
-                                <span className="text-muted-foreground">Recordarme</span>
-                            </label>
-                            <a href="#" className="text-primary hover:underline">
-                                ¿Olvidaste tu contraseña?
-                            </a>
-                        </div>
                     </CardContent>
 
-                    <CardFooter className="flex flex-col space-y-4">
+                    <CardFooter className="flex flex-col space-y-4 mt-5">
                         <Button
                             type="submit"
                             className="w-full"

@@ -46,7 +46,8 @@ import {
     XCircle,
     PlayCircle,
     CheckSquare,
-    FileText
+    FileText,
+    Download
 } from 'lucide-react';
 import {
     visitasApi,
@@ -66,6 +67,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { format, parseISO, isToday, isThisWeek, isThisMonth } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { generateVisitasPDF } from '@/lib/reports';
 
 // Helper para extraer mensajes de error
 const getErrorMessage = (err: unknown): string => {
@@ -656,12 +658,29 @@ export default function VisitasPage() {
                         </p>
                     </div>
 
-                    {canCreateEdit && (
-                        <Button onClick={openCreateDialog}>
-                            <CalendarPlus className="mr-2 h-4 w-4" />
-                            Nueva Visita
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                const filtroTexto = `Filtros aplicados: ${dateFilter !== 'all' ? dateFilter : 'todas las fechas'}, ${estadoFilter !== 'all' ? `Estado ${estadoFilter}` : 'todos los estados'}`;
+                                generateVisitasPDF(filteredVisitas, filtroTexto);
+                                toast({
+                                    title: 'PDF Generado',
+                                    description: 'El reporte se ha descargado exitosamente',
+                                });
+                            }}
+                        >
+                            <Download className="mr-2 h-4 w-4" />
+                            Exportar PDF
                         </Button>
-                    )}
+
+                        {canCreateEdit && (
+                            <Button onClick={openCreateDialog}>
+                                <CalendarPlus className="mr-2 h-4 w-4" />
+                                Nueva Visita
+                            </Button>
+                        )}
+                    </div>
                 </div>
 
                 {/* Tarjetas de resumen */}

@@ -2,63 +2,165 @@
 
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Activity, Users, CreditCard, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { ClipboardList, Users, UserCheck, Clock, CheckCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { visitasApi, clientesApi, usersApi } from '@/lib/api/endpoints';
+import type { Visita } from '@/lib/api/endpoints';
+import { getErrorMessage } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
-const stats = [
-    {
-        title: 'Ingresos Totales',
-        value: '$45,231.89',
-        change: '+20.1%',
-        trend: 'up',
-        icon: CreditCard,
-    },
-    {
-        title: 'Usuarios Activos',
-        value: '+2,350',
-        change: '+180.1%',
-        trend: 'up',
-        icon: Users,
-    },
-    {
-        title: 'Ventas',
-        value: '+12,234',
-        change: '+19%',
-        trend: 'up',
-        icon: TrendingUp,
-    },
-    {
-        title: 'Actividad',
-        value: '+573',
-        change: '-4.3%',
-        trend: 'down',
-        icon: Activity,
-    },
-];
-
-const recentActivity = [
-    { id: 1, user: 'Juan Pérez', action: 'Realizó una compra', amount: '$59.99', time: 'Hace 2 min' },
-    { id: 2, user: 'María García', action: 'Se registró', amount: '', time: 'Hace 5 min' },
-    { id: 3, user: 'Carlos López', action: 'Actualizó perfil', amount: '', time: 'Hace 10 min' },
-    { id: 4, user: 'Ana Martínez', action: 'Realizó una compra', amount: '$129.99', time: 'Hace 15 min' },
-    { id: 5, user: 'Pedro Sánchez', action: 'Dejó un comentario', amount: '', time: 'Hace 20 min' },
-];
+interface DashboardStats {
+    totalVisits: number;
+    pendingVisits: number;
+    completedVisits: number;
+    totalClients: number;
+    activeUsers: number;
+    totalTechnicians: number;
+}
 
 export default function DashboardPage() {
+    const [stats, setStats] = useState<DashboardStats>({
+        totalVisits: 0,
+        pendingVisits: 0,
+        completedVisits: 0,
+        totalClients: 0,
+        activeUsers: 0,
+        totalTechnicians: 0,
+    });
+    const [recentVisits, setRecentVisits] = useState<Visita[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        loadDashboardData();
+    }, []);
+
+    const loadDashboardData = async () => {
+        try {
+            setLoading(true);
+
+            const [visitsData, clientsData, usersData] = await Promise.all([
+                visitasApi.getAll(),
+                clientesApi.getAll(),
+                usersApi.getAll(),
+            ]);
+
+            const pendingCount = visitsData.filter((v) => v.idEstadoVisita === 1 || v.idEstadoVisita === 2).length;
+            const completedCount = visitsData.filter((v) => v.idEstadoVisita === 3).length;
+            const activeUsersCount = usersData.filter((u) => u.status === true).length;
+            const techniciansCount = usersData.filter((u) =>
+                u.roles.some((r) => r.toLowerCase() === 'tecnico')
+            ).length;
+
+            setStats({
+                totalVisits: visitsData.length,
+                pendingVisits: pendingCount,
+                completedVisits: completedCount,
+                totalClients: clientsData.length,
+                activeUsers: activeUsersCount,
+                totalTechnicians: techniciansCount,
+            });
+
+            const sortedVisits = [...visitsData]
+                .sort((a, b) => new Date(b.fechaHoraProgramada).getTime() - new Date(a.fechaHoraProgramada).getTime())
+                .slice(0, 5);
+            setRecentVisits(sortedVisits);
+        } catch (err) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: getErrorMessage(err),
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getEstadoBadge = (idEstadoVisita: number) => {
+        switch (idEstadoVisita) {
+            case 1:
+                return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Pendiente</Badge>;
+            case 2:
+                return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">En Proceso</Badge>;
+            case 3:
+                return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Completada</Badge>;
+            case 4:
+                return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Cancelada</Badge>;
+            default:
+                return <Badge variant="outline">Desconocido</Badge>;
+        }
+    };
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInMs = now.getTime() - date.getTime();
+        const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+        const diffInDays = Math.floor(diffInHours / 24);
+
+        if (diffInHours < 1) return 'Hace menos de 1 hora';
+        if (diffInHours < 24) return `Hace ${diffInHours} hora${diffInHours > 1 ? 's' : ''}`;
+        if (diffInDays < 7) return `Hace ${diffInDays} día${diffInDays > 1 ? 's' : ''}`;
+
+        return date.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+        });
+    };
+
+    const statsCards = [
+        {
+            title: 'Total de Visitas',
+            value: loading ? '...' : stats.totalVisits.toString(),
+            icon: ClipboardList,
+            description: 'Visitas registradas',
+        },
+        {
+            title: 'Visitas Pendientes',
+            value: loading ? '...' : stats.pendingVisits.toString(),
+            icon: Clock,
+            description: 'Requieren atención',
+        },
+        {
+            title: 'Visitas Completadas',
+            value: loading ? '...' : stats.completedVisits.toString(),
+            icon: CheckCircle,
+            description: 'Finalizadas con éxito',
+        },
+        {
+            title: 'Clientes',
+            value: loading ? '...' : stats.totalClients.toString(),
+            icon: Users,
+            description: 'Clientes registrados',
+        },
+        {
+            title: 'Usuarios Activos',
+            value: loading ? '...' : stats.activeUsers.toString(),
+            icon: UserCheck,
+            description: 'Usuarios del sistema',
+        },
+        {
+            title: 'Técnicos',
+            value: loading ? '...' : stats.totalTechnicians.toString(),
+            icon: UserCheck,
+            description: 'Técnicos disponibles',
+        },
+    ];
+
     return (
         <DashboardLayout>
             <div className="space-y-6">
-                {/* Header */}
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Panel de Control</h1>
                     <p className="text-muted-foreground">
-                        Bienvenido a tu panel de control
+                        Vista general del sistema de gestión de visitas
                     </p>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    {stats.map((stat) => {
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {statsCards.map((stat) => {
                         const Icon = stat.icon;
                         return (
                             <Card key={stat.title}>
@@ -70,99 +172,99 @@ export default function DashboardPage() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">{stat.value}</div>
-                                    <div className="flex items-center text-xs text-muted-foreground mt-1">
-                                        {stat.trend === 'up' ? (
-                                            <ArrowUpRight className="h-4 w-4 text-green-500 mr-1" />
-                                        ) : (
-                                            <ArrowDownRight className="h-4 w-4 text-red-500 mr-1" />
-                                        )}
-                                        <span className={stat.trend === 'up' ? 'text-green-500' : 'text-red-500'}>
-                                            {stat.change}
-                                        </span>
-                                        <span className="ml-1">desde el último mes</span>
-                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        {stat.description}
+                                    </p>
                                 </CardContent>
                             </Card>
                         );
                     })}
                 </div>
 
-                {/* Main Content Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                    {/* Recent Activity */}
+                <div className="grid gap-4 md:grid-cols-7">
                     <Card className="col-span-4">
                         <CardHeader>
-                            <CardTitle>Actividad Reciente</CardTitle>
+                            <CardTitle>Visitas Recientes</CardTitle>
                             <CardDescription>
-                                Las últimas acciones realizadas en el sistema
+                                Últimas visitas registradas en el sistema
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
-                                {recentActivity.map((activity) => (
-                                    <div
-                                        key={activity.id}
-                                        className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0"
-                                    >
-                                        <div className="flex items-center space-x-4">
-                                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                                <span className="text-primary font-semibold text-sm">
-                                                    {activity.user.charAt(0)}
-                                                </span>
+                            {loading ? (
+                                <div className="space-y-4">
+                                    {[...Array(5)].map((_, i) => (
+                                        <div key={i} className="h-16 bg-muted rounded animate-pulse" />
+                                    ))}
+                                </div>
+                            ) : recentVisits.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <ClipboardList className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                                    <p>No hay visitas registradas</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {recentVisits.map((visita) => (
+                                        <div
+                                            key={visita.id}
+                                            className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0"
+                                        >
+                                            <div className="flex items-center space-x-4">
+                                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                                    <span className="text-primary font-semibold text-sm">
+                                                        {visita.nombreCliente.charAt(0)}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium">{visita.nombreCliente}</p>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {visita.tipoVisita} - {visita.nombreTecnico}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-medium">{activity.user}</p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {activity.action}
+                                            <div className="text-right">
+                                                {getEstadoBadge(visita.idEstadoVisita)}
+                                                <p className="text-xs text-muted-foreground mt-1">
+                                                    {formatDate(visita.fechaHoraProgramada)}
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            {activity.amount && (
-                                                <p className="text-sm font-medium">{activity.amount}</p>
-                                            )}
-                                            <p className="text-xs text-muted-foreground">
-                                                {activity.time}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 
-                    {/* Quick Stats */}
                     <Card className="col-span-3">
                         <CardHeader>
-                            <CardTitle>Estado del Sistema</CardTitle>
+                            <CardTitle>Resumen Rápido</CardTitle>
                             <CardDescription>
-                                Información general del sistema
+                                Información clave del sistema
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium">Servidor</span>
-                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                        Activo
+                                    <span className="text-sm font-medium">Visitas Totales</span>
+                                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                        {stats.totalVisits}
                                     </Badge>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium">Base de Datos</span>
-                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                        Conectada
-                                    </Badge>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium">API Externa</span>
-                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                        Operativa
-                                    </Badge>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium">Almacenamiento</span>
+                                    <span className="text-sm font-medium">Pendientes</span>
                                     <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                                        65% usado
+                                        {stats.pendingVisits}
+                                    </Badge>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium">Completadas</span>
+                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                        {stats.completedVisits}
+                                    </Badge>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium">Clientes Activos</span>
+                                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                                        {stats.totalClients}
                                     </Badge>
                                 </div>
                             </div>
@@ -170,21 +272,47 @@ export default function DashboardPage() {
                             <div className="pt-4 border-t">
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">CPU</span>
-                                        <span className="font-medium">45%</span>
+                                        <span className="text-muted-foreground">Tasa de Completitud</span>
+                                        <span className="font-medium">
+                                            {stats.totalVisits > 0
+                                                ? Math.round((stats.completedVisits / stats.totalVisits) * 100)
+                                                : 0}
+                                            %
+                                        </span>
                                     </div>
                                     <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                                        <div className="h-full bg-primary" style={{ width: '45%' }} />
+                                        <div
+                                            className="h-full bg-green-500"
+                                            style={{
+                                                width: `${stats.totalVisits > 0
+                                                    ? (stats.completedVisits / stats.totalVisits) * 100
+                                                    : 0
+                                                    }%`,
+                                            }}
+                                        />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2 mt-3">
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">Memoria</span>
-                                        <span className="font-medium">62%</span>
+                                        <span className="text-muted-foreground">Visitas Pendientes</span>
+                                        <span className="font-medium">
+                                            {stats.totalVisits > 0
+                                                ? Math.round((stats.pendingVisits / stats.totalVisits) * 100)
+                                                : 0}
+                                            %
+                                        </span>
                                     </div>
                                     <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                                        <div className="h-full bg-primary" style={{ width: '62%' }} />
+                                        <div
+                                            className="h-full bg-yellow-500"
+                                            style={{
+                                                width: `${stats.totalVisits > 0
+                                                    ? (stats.pendingVisits / stats.totalVisits) * 100
+                                                    : 0
+                                                    }%`,
+                                            }}
+                                        />
                                     </div>
                                 </div>
                             </div>

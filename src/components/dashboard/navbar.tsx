@@ -3,6 +3,7 @@
 import { Bell, Search, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -39,53 +40,12 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             </Button>
 
             <div className="flex-1 flex items-center space-x-4">
-                <div className="relative w-full max-w-md hidden md:block">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        type="search"
-                        placeholder="Buscar..."
-                        className="pl-10 w-full"
-                    />
-                </div>
+
             </div>
 
             <div className="flex items-center space-x-4">
-                {/* Notificaciones */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="relative">
-                            <Bell className="h-5 w-5" />
-                            <Badge
-                                variant="destructive"
-                                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                            >
-                                3
-                            </Badge>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-80">
-                        <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <div className="max-h-[300px] overflow-y-auto">
-                            <DropdownMenuItem className="flex flex-col items-start p-3 cursor-pointer">
-                                <div className="font-medium">Nuevo usuario registrado</div>
-                                <div className="text-sm text-muted-foreground">Hace 5 minutos</div>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="flex flex-col items-start p-3 cursor-pointer">
-                                <div className="font-medium">Reporte mensual disponible</div>
-                                <div className="text-sm text-muted-foreground">Hace 1 hora</div>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="flex flex-col items-start p-3 cursor-pointer">
-                                <div className="font-medium">Actualización del sistema</div>
-                                <div className="text-sm text-muted-foreground">Hace 2 horas</div>
-                            </DropdownMenuItem>
-                        </div>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="w-full text-center justify-center cursor-pointer">
-                            Ver todas las notificaciones
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Toggle de tema */}
+                <ThemeToggle />
 
                 {/* Perfil de usuario */}
                 <DropdownMenu>
@@ -116,15 +76,6 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="cursor-pointer">
-                            Mi Perfil
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer">
-                            Configuración
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer">
-                            Ayuda
-                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             className="cursor-pointer text-red-600 dark:text-red-400"

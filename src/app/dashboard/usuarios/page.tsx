@@ -26,11 +26,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Search, UserPlus, MoreVertical, Mail, Phone, Loader2, Shield, Lock, UserX, Edit } from 'lucide-react';
+import { Search, UserPlus, MoreVertical, Mail, Phone, Loader2, Shield, Lock, UserX, Edit, Download } from 'lucide-react';
 import { usersApi, User } from '@/lib/api/endpoints';
 import { useToast } from '@/hooks/use-toast';
 import { rolesApi } from '@/lib/api/roles';
 import { UserRole, getRoleLabel, getRoleBadgeColor } from '@/lib/types/roles';
+import { generateUsuariosPDF } from '@/lib/reports';
 
 export default function UsersPage() {
     const { toast } = useToast();
@@ -905,7 +906,7 @@ export default function UsersPage() {
                                         type="tel"
                                         value={editPhone}
                                         onChange={(e) => setEditPhone(e.target.value)}
-                                        placeholder="+34 612 345 678"
+                                        placeholder="45454545"
                                     />
                                 </div>
 

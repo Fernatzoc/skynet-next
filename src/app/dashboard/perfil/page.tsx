@@ -12,6 +12,7 @@ import { Loader2, Mail, Phone, Shield, User, Lock } from 'lucide-react';
 import { usersApi, UserProfile, UpdateProfileRequest } from '@/lib/api/endpoints';
 import { rolesApi } from '@/lib/api/roles';
 import { getRoleLabel, getRoleBadgeColor, UserRole } from '@/lib/types/roles';
+import { getErrorInfo } from '@/lib/utils';
 import {
     Dialog,
     DialogContent,
@@ -21,23 +22,6 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-
-// Helper para extraer mensajes de error de validación de ASP.NET Core
-const getErrorMessage = (err: unknown): string => {
-    const error = err as { response?: { data?: { errors?: Record<string, string[]>; message?: string; title?: string } }; message?: string };
-    if (error.response?.data?.errors) {
-        const errors = error.response.data.errors;
-        const messages: string[] = [];
-        Object.keys(errors).forEach(field => {
-            const fieldErrors = errors[field];
-            if (Array.isArray(fieldErrors)) {
-                messages.push(...fieldErrors);
-            }
-        });
-        return messages.join('. ');
-    }
-    return error.response?.data?.message || error.response?.data?.title || error.message || 'Error en la operación';
-};
 
 export default function ProfilePage() {
     const { toast } = useToast();
@@ -81,7 +65,14 @@ export default function ProfilePage() {
             setSecondSurname(data.secondSurname || '');
             setPhone(data.phone || '');
         } catch (err) {
-            setLoadError(getErrorMessage(err));
+            const errorInfo = getErrorInfo(err);
+            console.log('Error Info:', errorInfo); // Debug
+            setLoadError(errorInfo.message);
+            toast({
+                title: errorInfo.type === 'warning' ? '⚠️ Acceso denegado' : '❌ Error',
+                description: errorInfo.message,
+                variant: errorInfo.type === 'warning' ? 'warning' : 'destructive',
+            });
             console.error('Error loading profile:', err);
         } finally {
             setIsLoading(false);
@@ -109,7 +100,13 @@ export default function ProfilePage() {
             });
             await loadProfile();
         } catch (err) {
-            setUpdateError(getErrorMessage(err));
+            const errorInfo = getErrorInfo(err);
+            setUpdateError(errorInfo.message);
+            toast({
+                title: errorInfo.type === 'warning' ? '⚠️ Acceso denegado' : '❌ Error',
+                description: errorInfo.message,
+                variant: errorInfo.type === 'warning' ? 'warning' : 'destructive',
+            });
         } finally {
             setIsUpdating(false);
         }
@@ -146,7 +143,13 @@ export default function ProfilePage() {
                 variant: "success",
             });
         } catch (err) {
-            setPasswordError(getErrorMessage(err));
+            const errorInfo = getErrorInfo(err);
+            setPasswordError(errorInfo.message);
+            toast({
+                title: errorInfo.type === 'warning' ? '⚠️ Acceso denegado' : '❌ Error',
+                description: errorInfo.message,
+                variant: errorInfo.type === 'warning' ? 'warning' : 'destructive',
+            });
         } finally {
             setIsChangingPassword(false);
         }
@@ -388,7 +391,7 @@ export default function ProfilePage() {
                                             type="tel"
                                             value={phone}
                                             onChange={(e) => setPhone(e.target.value)}
-                                            placeholder="+34 612 345 678"
+                                            placeholder="45454545"
                                         />
                                     ) : (
                                         <p className="text-sm text-muted-foreground">

@@ -12,7 +12,8 @@ import {
     ChevronLeft,
     ChevronRight,
     User,
-    UserCircle
+    UserCircle,
+    FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -39,7 +40,7 @@ const menuItems: MenuItem[] = [
     },
     {
         title: 'Mi Perfil',
-        href: '/dashboard/profile',
+        href: '/dashboard/perfil',
         icon: User,
         // No requiere permission específica - todos los usuarios autenticados
     },
@@ -57,13 +58,13 @@ const menuItems: MenuItem[] = [
     },
     {
         title: 'Usuarios',
-        href: '/dashboard/users',
+        href: '/dashboard/usuarios',
         icon: Users,
         permission: 'canManageUsers', // Solo Admins
     },
     {
         title: 'Configuración',
-        href: '/dashboard/settings',
+        href: '/dashboard/configuracion',
         icon: Settings,
     },
 ];
@@ -135,16 +136,6 @@ export function Sidebar({ className }: SidebarProps) {
                     );
                 })}
             </nav>
-
-            <div className="border-t p-4">
-                <div className={cn(
-                    'flex items-center space-x-3 text-sm text-muted-foreground',
-                    collapsed && 'justify-center'
-                )}>
-                    <div className="h-2 w-2 rounded-full bg-green-500" />
-                    {!collapsed && <span>Sistema activo</span>}
-                </div>
-            </div>
         </aside>
     );
 }

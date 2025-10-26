@@ -47,30 +47,33 @@ export default function SettingsPage() {
                                 <div className="grid grid-cols-3 gap-2">
                                     <button
                                         onClick={() => handleThemeChange('light')}
-                                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-colors ${theme === 'light'
+                                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-colors ${
+                                            theme === 'light'
                                                 ? 'border-primary bg-primary/5'
                                                 : 'border-border hover:border-primary/50'
-                                            }`}
+                                        }`}
                                     >
                                         <Sun className="h-5 w-5" />
                                         <span className="text-xs font-medium">Claro</span>
                                     </button>
                                     <button
                                         onClick={() => handleThemeChange('dark')}
-                                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-colors ${theme === 'dark'
+                                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-colors ${
+                                            theme === 'dark'
                                                 ? 'border-primary bg-primary/5'
                                                 : 'border-border hover:border-primary/50'
-                                            }`}
+                                        }`}
                                     >
                                         <Moon className="h-5 w-5" />
                                         <span className="text-xs font-medium">Oscuro</span>
                                     </button>
                                     <button
                                         onClick={() => handleThemeChange('system')}
-                                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-colors ${theme === 'system'
+                                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-colors ${
+                                            theme === 'system'
                                                 ? 'border-primary bg-primary/5'
                                                 : 'border-border hover:border-primary/50'
-                                            }`}
+                                        }`}
                                     >
                                         <Monitor className="h-5 w-5" />
                                         <span className="text-xs font-medium">Sistema</span>
