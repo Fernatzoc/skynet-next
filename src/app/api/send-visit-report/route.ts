@@ -4,44 +4,44 @@ import { NextRequest, NextResponse } from 'next/server';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json();
-        const {
-            visitaId,
-            clienteEmail,
-            clienteNombre,
-            visitaFecha,
-            visitaHora,
-            visitaEstado,
-            visitaDireccion,
-            visitaDescripcion,
-            registroFecha,
-            registroObservaciones,
-            registroResultado,
-            tecnicoNombre,
-            tecnicoTelefono
-        } = body;
+  try {
+    const body = await request.json();
+    const {
+      visitaId,
+      clienteEmail,
+      clienteNombre,
+      visitaFecha,
+      visitaHora,
+      visitaEstado,
+      visitaDireccion,
+      visitaDescripcion,
+      registroFecha,
+      registroObservaciones,
+      registroResultado,
+      tecnicoNombre,
+      tecnicoTelefono
+    } = body;
 
-        // Validar que tenemos el email del cliente
-        if (!clienteEmail) {
-            return NextResponse.json(
-                { error: 'Email del cliente es requerido' },
-                { status: 400 }
-            );
-        }
+    // Validar que tenemos el email del cliente
+    if (!clienteEmail) {
+      return NextResponse.json(
+        { error: 'Email del cliente es requerido' },
+        { status: 400 }
+      );
+    }
 
-        // Formatear la fecha para mejor legibilidad
-        const formatDate = (dateString: string) => {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('es-MX', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        };
+    // Formatear la fecha para mejor legibilidad
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-MX', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    };
 
-        // Crear el contenido HTML del email
-        const emailHtml = `
+    // Crear el contenido HTML del email
+    const emailHtml = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -197,33 +197,33 @@ export async function POST(request: NextRequest) {
       </html>
     `;
 
-        // Enviar el email
-        const { data, error } = await resend.emails.send({
-            from: 'SkyNet <onboarding@resend.dev>',
-            to: [clienteEmail],
-            subject: `Reporte de Visita #${visitaId} - Visita Completada`,
-            html: emailHtml,
-        });
+    // Enviar el email
+    const { data, error } = await resend.emails.send({
+      from: 'SkyNet <notificaciones@fernandotzoc.dev>',
+      to: [clienteEmail],
+      subject: `Reporte de Visita #${visitaId} - Visita Completada`,
+      html: emailHtml,
+    });
 
-        if (error) {
-            console.error('Error al enviar email:', error);
-            return NextResponse.json(
-                { error: 'Error al enviar el email', details: error },
-                { status: 500 }
-            );
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: 'Email enviado correctamente',
-            emailId: data?.id
-        });
-
-    } catch (error) {
-        console.error('Error en la API de envío de email:', error);
-        return NextResponse.json(
-            { error: 'Error interno del servidor' },
-            { status: 500 }
-        );
+    if (error) {
+      console.error('Error al enviar email:', error);
+      return NextResponse.json(
+        { error: 'Error al enviar el email', details: error },
+        { status: 500 }
+      );
     }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Email enviado correctamente',
+      emailId: data?.id
+    });
+
+  } catch (error) {
+    console.error('Error en la API de envío de email:', error);
+    return NextResponse.json(
+      { error: 'Error interno del servidor' },
+      { status: 500 }
+    );
+  }
 }
