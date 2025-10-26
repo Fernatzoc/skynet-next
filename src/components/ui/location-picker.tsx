@@ -20,7 +20,7 @@ const mapContainerStyle = {
     borderRadius: '0.5rem',
 };
 
-// Coordenadas por defecto (Tegucigalpa, Honduras)
+
 const defaultCenter = {
     lat: 14.0818,
     lng: -87.2068,
@@ -169,7 +169,7 @@ export function LocationPicker({ latitude, longitude, onLocationChange, disabled
             <div className="flex gap-2">
                 <div className="flex-1">
                     <Input
-                        placeholder="Buscar dirección... (ej: Tegucigalpa, Honduras)"
+                        placeholder="Buscar dirección... (ej: Ciudad de Guatemala)"
                         value={searchAddress}
                         onChange={(e) => setSearchAddress(e.target.value)}
                         onKeyPress={handleKeyPress}
